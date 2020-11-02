@@ -6,6 +6,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "alpinejs": "^2.7.3",
     "tailwindcss": "^1.9.6"
   },
   "devDependencies": {
