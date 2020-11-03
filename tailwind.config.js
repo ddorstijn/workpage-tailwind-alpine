@@ -64,11 +64,6 @@ module.exports = {
     textColor: (theme) => ({
       ...theme('colors'),
     }),
-    fontFamily: {
-      sans: ['montserrat', 'system-ui'],
-      serif: ['Georgia', 'Cambria'],
-      mono: ['SFMono-Regular'],
-    },
     extend: {
       inset: {
         20: '20%',
@@ -89,6 +84,9 @@ module.exports = {
 				'3/4-screen': '75vh',
         ...theme('spacing'),
       }),
+      fontFamily: {
+        sans: ['Montserrat'],
+      },
       fontSize: {
         '7xl': ['5rem', '5rem'],
         '8xl': ['6rem', '6rem'],
