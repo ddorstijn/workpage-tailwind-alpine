@@ -6,17 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workpage</title>
 </head>
-<body class="h-full w-full bg-dark-darker flex gap-32 p-16 text-light-lighter font-sans">
+<body class="h-screen w-screen bg-dark-darker flex gap-32 p-16 text-light-lighter font-sans box-border">
   <main class="my-auto w-4/6">
 		<!-- Clock -->
-		<article class="flex flex-col items-center justify-center">
-			<h1 class="text-7xl text-center">{{ time }}</h1>
-			<h3 class="text-2xl text-center">{{ date }}</h3>
+		<article class="flex flex-col items-center justify-center" x-data>
+			<h1 class="text-7xl text-center" x-text="new Date().toLocaleString('en-gb', {hour: 'numeric', minute: 'numeric'})"></h1>
+			<h3 class="text-2xl text-center" x-text="new Date().toLocaleString('en-gb', {year: 'numeric', month: 'short', day: 'numeric'})"></h3>
 		</article>
 
 		<!-- Projects -->
-		<article>
-			<button class="flex justify-center items-center cursor-pointer select-none bg-light-lighter text-dark-darker py-1 pr-4 rounded mt-4 mx-auto">
+		<article x-data="{ open: false }">
+			<button class="flex justify-center items-center cursor-pointer select-none bg-light-lighter text-dark-darker py-1 pr-4 rounded mt-4 mx-auto" @click="open = true">
 				<h2 class="text-2xl flex items-center gap-1">
 					<svg
 						class="h-6 pl-2 pr-1"
@@ -34,43 +34,48 @@
 					Project title
 				</h2>
 			</button>
+			
+			<section x-show="open" @click.away="open = false" class="absolute top-0 left-0 w-full h-full p-16">
+				<div class="bg-dark-darkest w-full h-full rounded-xl p-8" @keydown.escape.window="open = false">
+					<h1 class="text-3xl">Projects</h1>
+				</div>
+			</section>
 		</article>
 
 		<!-- Links -->
-		<article class="w-full mt-16 flex flex-col gap-12 items-center">
-			<section class="flex justify-between w-full">
-				<div
-					v-for="(list, idx) in linkLists"
-					:key="list.title"
-					class="flex flex-col gap-2 w-3/12"
-				>
-					<header
-						class="text-2xl px-4 py-1"
-						:class="{
-							'bg-red-lighter': idx == 0,
-							'bg-blue-lighter': idx == 1,
-							'bg-green': idx == 2,
-						}"
-					>
-						{{ list.title }}
-					</header>
-					<wp-draggable class="bg-light-lighter text-dark-darker p-2 px-4">
-						<div
-							v-for="link in list.items"
-							:key="link.id"
-							class="flex items-center my-2"
+		<article class="w-full mt-16 flex flex-col gap-12 items-center" x-data="{ current_id: 0, lists: [{'title': 'Hello', items: [{id: 0, title: 'Item 1'}, {id: 1, title: 'Item 2'}, {id: 2, title: 'Item 3'}]}]}">
+			<section class="w-full flex justify-center gap-12">
+				<template x-for="(list, index) in lists" :key="index">
+					<div class="h-full flex flex-col gap-2 w-3/12 shadow-lg">
+						<header
+							class="text-2xl px-4 py-1"
+							:class="{
+								'bg-red-lighter': index == 0,
+								'bg-blue-lighter': index == 1,
+								'bg-green': index == 2,
+							}"
+							x-text="list.title"
 						>
-							{{ link.title }}
+						</header>
+						<div class="bg-light-lighter text-dark-darker p-2 px-4">
+							<template x-if="list.items.length == 0">
+							<p>There are no items here yet</p>
+							</template>
+							<template x-for="link in list.items" :key="link.id">
+								<div class="flex items-center my-2" x-text="link.title">
+								</div>
+							</template>
 						</div>
-					</wp-draggable>
-				</div>
+					</div>
+				</template>
 			</section>
 			<section class="grid grid-cols-2 divide-x">
-				<button class="px-4 text-right">Add bookmark</button>
-				<button class="px-4 text-left">Add catalogue</button>
+				<button class="px-4 text-right" @click="lists[0].items.push({id: current_id++, title: 'New item'})">Add bookmark</button>
+				<button class="px-4 text-left" @click="lists.push({title: 'New category', items: []})">Add catalogue</button>
 			</section>
 		</article>
   </main>
+
   <aside class="w-2/6 h-full flex flex-col gap-6 justify-between">
 		<!-- Tasks -->
 		<article class="w-full h-full">
@@ -107,10 +112,7 @@
 					</wp-draggable>
 				</div>
 				<div class="max-h-1/2-screen overflow-auto">
-					<wp-draggable
-						group="tasks"
-						:list="todoList"
-					>
+					<wp-draggable group="tasks" :list="todoList">
 						<wp-task
 							v-for="task in todoList"
 							:key="task.id"
@@ -146,17 +148,9 @@
 		</article>
 
 		<!-- Timer -->
-		<article class="container gap-x-4 gap-y-2">
-			<header
-				id="header"
-				class="flex justify-center items-center cursor-pointer select-none"
-			>
-				<svg
-					class="h-10"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
+		<article class="container gap-x-4 gap-y-2" x-data="timer()" x-init="init()">
+			<header class="flex justify-center items-center cursor-pointer select-none">
+				<svg class="h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 					<path
 						fill-rule="evenodd"
 						d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
@@ -164,17 +158,12 @@
 					/>
 				</svg>
 			</header>
-			<section id="status" class="flex flex-col">
+			<section class="flex flex-col">
 				<h3 class="text-xl">{{ elapsedHuman }}</h3>
 				<h4 class="text-sm">Session: 0h 12m 36s</h4>
 			</section>
 			<section id="goal" class="flex justify-end items-center gap-1 px-2 mt-auto">
-				<svg
-					class="w-4 text-light-darker"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
+				<svg class="w-4 text-light-darker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 					<path
 						fill-rule="evenodd"
 						d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"
@@ -184,12 +173,7 @@
 				<h5 class="text-sm text-center">0h 30m</h5>
 			</section>
 			<svg
-				id="bar"
-				class="w-full h-1"
-				viewBox="0 0 100 2"
-				preserveAspectRatio="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
+				class="w-full h-1" viewBox="0 0 100 2" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 				<line
 					class="stroke-current text-dark"
 					x1="1"
@@ -213,5 +197,43 @@
   </aside>
 
   <script type="module" src="/src/main.js"></script>
+	<script>
+		function timer() {
+			return {
+				running: false,
+				sessions: [],
+				currentSession: {start: null, end: null},
+				init() {
+					setTimeout(this.updateSession, 500);
+				},
+				startSession() {
+					this.running = true;
+					this.start = new Date();
+				},
+				endSession() {
+					this.running = false;
+					this.sessions.push(this.currentSession);
+					this.currentSession = { start: null, end: null)};
+				},
+				updateSession() {
+					if (this.currentSession.start) {
+						this.currentSession.end = new Date();
+					}
+				},
+				get elapsedTime() {
+					let total = 0;
+					previousSessions.forEach((session) => {
+						total += session.end - session.start;
+					})
+
+					if (this.currentSession.start && this.currentSession.end) {
+						total += currentSession.end - currentSession.start;
+					}
+
+					return total;
+				}
+			}
+		}
+	</script>
 </body>
 </html>
