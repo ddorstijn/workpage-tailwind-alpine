@@ -3,3 +3,12 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+textarea:-webkit-scrollbar {
+  display: none;
+}
+
+textarea {
+	scrollbar-width: none;
+	resize: none;
+}

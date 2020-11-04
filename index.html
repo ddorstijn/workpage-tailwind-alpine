@@ -105,7 +105,7 @@
       class="w-2/6 h-full flex flex-col gap-6 justify-between border-l border-dark-lighter pl-16"
     >
       <!-- Tasks -->
-      <article class="w-full h-full" x-data="tasks()" x-init="init()">
+      <article class="w-full h-full" x-data="tasks()">
         <header class="flex justify-center items-center gap-2 mb-6">
           <h1 class="text-3xl">Todo</h1>
           <svg
@@ -136,11 +136,24 @@
               </li>
             </ul>
           </div>
-          <div id="draggable-todos" class="max-h-1/2-screen overflow-auto">
+          <div id="draggable" class="max-h-1/2-screen overflow-auto">
+
+						<!-- Task item -->
             <template x-for="task in todos" :key="task.id">
               <div class="flex justify-between w-full group hover:bg-dark-darkest py-2 pl-4 rounded">
                 <div class="w-full flex flex-col">
-                  <p class="font-sans tracking-wide text-md" x-text="task.title"></p>
+									<textarea 
+										class="font-sans tracking-wide text-md bg-transparent" 
+										rows="1"
+										readonly
+										x-model="task.title" 
+										x-ref="'task' + task.id"
+										oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
+										onclick="this.readOnly = false"
+										onblur="this.readOnly = true"
+										@keydown.escape="$event.target.blur()"
+										@keydown.enter.prevent="$event.target.blur()"
+									></textarea>
                   <div class="flex gap-2 items-center text-gray text-sm">
                     <div class="flex items-center">
                       <svg
@@ -358,14 +371,8 @@
 
     <script type="module" src="/src/main.js"></script>
     <script>
-			// import Sortable from "sortablejs";
-			
       function tasks() {
         return {
-					init() { 
-						// var el = document.getElementById("draggable-todos");
-						// var sortable = Sortable.create(el);
-					},
           doing: [],
           todos: [
             {
@@ -380,6 +387,14 @@
 						{
 							id: 1,
 							title: 'Create a script that initializes configfs',
+							created: new Date('22 Nov 2020'),
+							due: new Date('25 Nov 2020'),
+							spent: '2h 0m 24s',
+							estimate: '2h 20m',
+						},
+						{
+							id: 2,
+							title: 'Gotta test it all ya know right',
 							created: new Date('22 Nov 2020'),
 							due: new Date('25 Nov 2020'),
 							spent: '2h 0m 24s',
